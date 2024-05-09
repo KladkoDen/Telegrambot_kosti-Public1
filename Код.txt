@@ -1,0 +1,52 @@
+import telebot
+import random
+from PIL import Image, ImageFont, ImageDraw
+
+# Замість 'TOKEN' вкажіть свій токен бота
+bot = telebot.TeleBot('7187032117:AAGjTMxDIUyrQBpNASfVFvQ2FQaBvI5L2rQ')
+
+@bot.message_handler(commands=['roll'])
+def roll_dice(message):
+    dice_results = [random.randint(1, 6) for _ in range(2)]
+    bot.reply_to(message, f"Випало: {dice_results[0]} та {dice_results[1]}")
+
+# Додаємо функцію для генерування зображення з кубиками
+from PIL import Image, ImageFont, ImageDraw
+
+def generate_dice_image(dice_results):
+    # Створити нове зображення
+    image = Image.new('RGB', (200, 100), color=(255, 255, 255))
+
+    # Створити об'єкт для малювання
+    draw = ImageDraw.Draw(image)
+
+    # Завантажити шрифт
+    font = ImageFont.truetype("arial.ttf", 36)
+
+    # Намалювати кожен кубик
+    for i, result in enumerate(dice_results):
+        x = 50 + i * 100
+        y = 25
+
+        # Фон кубика
+        draw.rectangle((x, y, x + 50, y + 50), fill=(0, 0, 0))
+
+        # Значення кубика
+        draw.text((x + 15, y + 15), str(result), font=font, fill=(255, 255, 255))
+
+    # Зберегти зображення
+    image.save("dice.png")
+
+# Оновлена функція roll_dice
+@bot.message_handler(commands=['roll'])
+def roll_dice(message):
+    dice_results = [random.randint(1, 6) for _ in range(2)]
+    bot.reply_to(message, f"Випало: {dice_results[0]} та {dice_results[1]}")
+
+    # Надіслати зображення з кубиками
+    generate_dice_image(dice_results)
+    with open("dice.png", "rb") as image_file:
+        bot.send_photo(message.chat.id, image_file)
+
+# Запускаємо бота
+bot.polling()
